@@ -10,25 +10,42 @@ import InterviewPage from './pages/InterviewPage'
 import InterviewHistory from './pages/InterviewHistory'
 import Pricing from './pages/Pricing'
 import InterviewReport from './pages/InterviewReport'
+import { getRedirectResult } from 'firebase/auth'
+import { auth } from './utils/firebase'
 
 export const ServerUrl  = "https://interviewiq-backend-sy82.onrender.com"
 
 function App() {
-
   const dispatch = useDispatch()
-  useEffect(()=>{
-    const getUser = async () => {
+
+  useEffect(() => {
+    const init = async () => {
       try {
-        const result = await axios.get(ServerUrl + "/api/user/current-user", {withCredentials:true})
+        const redirectResult = await getRedirectResult(auth)
+        if (redirectResult) {
+          const fbUser = redirectResult.user
+          const res = await axios.post(
+            ServerUrl + "/api/auth/google",
+            { name: fbUser.displayName, email: fbUser.email },
+            { withCredentials: true }
+          )
+          dispatch(setUserData(res.data))
+          return
+        }
+      } catch (error) {
+        console.log(error)
+      }
+
+      try {
+        const result = await axios.get(ServerUrl + "/api/user/current-user", { withCredentials: true })
         dispatch(setUserData(result.data))
       } catch (error) {
         console.log(error)
         dispatch(setUserData(null))
       }
     }
-    getUser()
-
-  },[dispatch])
+    init()
+  }, [dispatch])
   return (
     <Routes>
       <Route path='/' element={<Home/>}/>
