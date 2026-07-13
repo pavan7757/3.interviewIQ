@@ -14,7 +14,7 @@ function Auth({isModel = false}) {
 
     const handleGoogleAuth = async () => {
         try {
-            const response = await signInWithPopup(auth,provider)
+            const response = await  signInWithRedirect(auth,provider)
             let User = response.user
             let name = User.displayName
             let email = User.email
