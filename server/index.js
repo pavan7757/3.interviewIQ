@@ -10,9 +10,24 @@ import interviewRouter from "./routes/interview.route.js"
 import paymentRouter from "./routes/payment.route.js"
 
 const app = express()
+const allowedOrigins = [
+    process.env.CORS_ORIGIN,
+    process.env.CORS_ORIGIN_PROD,
+    "http://localhost:5173",
+    "http://localhost:4173",
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:4173"
+].filter(Boolean)
+
 app.use(cors({
-    origin:"https://interviewiq-mdy3.onrender.com",
-    credentials:true
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true)
+            return
+        }
+        callback(new Error("Not allowed by CORS"))
+    },
+    credentials: true
 }))
 
 app.use(express.json())

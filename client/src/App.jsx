@@ -13,7 +13,12 @@ import InterviewReport from './pages/InterviewReport'
 import { getRedirectResult } from 'firebase/auth'
 import { auth } from './utils/firebase'
 
-export const ServerUrl  = "https://interviewiq-backend-sy82.onrender.com"
+const defaultServerUrl = "http://localhost:8000"
+export const ServerUrl = (
+  import.meta.env.PROD
+    ? (import.meta.env.VITE_API_BASE_URL_PROD || import.meta.env.VITE_API_BASE_URL)
+    : import.meta.env.VITE_API_BASE_URL
+)?.replace(/\/$/, "") || defaultServerUrl
 
 function App() {
   const dispatch = useDispatch()
