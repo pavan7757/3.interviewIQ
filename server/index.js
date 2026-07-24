@@ -13,6 +13,7 @@ const app = express()
 const allowedOrigins = [
     process.env.CORS_ORIGIN,
     process.env.CORS_ORIGIN_PROD,
+    "https://three-interviewiq-rum9.onrender.com",
     "http://localhost:5173",
     "http://localhost:4173",
     "http://127.0.0.1:5173",
