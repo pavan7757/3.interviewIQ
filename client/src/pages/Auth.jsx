@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BsRobot } from "react-icons/bs";
 import { IoSparkles } from "react-icons/io5";
 import { motion } from "motion/react"
@@ -8,21 +8,40 @@ import { auth, provider } from '../utils/firebase';
 import axios from 'axios';
 import { ServerUrl } from '../App';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { setUserData } from '../redux/userSlice';
 function Auth({isModel = false}) {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
+    const [message, setMessage] = useState('')
 
     const handleGoogleAuth = async () => {
+        setLoading(true)
+        setMessage('')
         try {
             const response = await signInWithPopup(auth, provider)
-            const user = response.user
-            const name = user.displayName
-            const email = user.email
+            const firebaseUser = response.user
+            const name = firebaseUser.displayName
+            const email = firebaseUser.email
             const result = await axios.post(ServerUrl + "/api/auth/google" , {name , email} , {withCredentials:true})
-            dispatch(setUserData(result.data))
+            const authData = result.data
+            const loggedUser = authData.user || authData
+            if (authData.token) {
+                localStorage.setItem("token", authData.token)
+            }
+            dispatch(setUserData(loggedUser))
+            setMessage('Login successful! Welcome back.')
+            setTimeout(() => {
+                setMessage('')
+                navigate('/')
+            }, 1200)
         } catch (error) {
             console.log(error)
             dispatch(setUserData(null))
+            setMessage('Login failed. Please try again.')
+        } finally {
+            setLoading(false)
         }
     }
   return (
@@ -66,12 +85,21 @@ function Auth({isModel = false}) {
             onClick={handleGoogleAuth}
             whileHover={{opacity:0.9 , scale:1.03}}
             whileTap={{opacity:1 , scale:0.98}}
-            className='w-full flex items-center justify-center gap-3 py-3 bg-black text-white rounded-full shadow-md '>
-                <FcGoogle size={20}/>
-                Continue with Google
-
-   
+            disabled={loading}
+            className='w-full flex items-center justify-center gap-3 py-3 bg-black text-white rounded-full shadow-md disabled:opacity-70'>
+                {loading ? (
+                    <span className='h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                ) : (
+                    <FcGoogle size={20}/>
+                )}
+                {loading ? 'Signing in...' : 'Continue with Google'}
             </motion.button>
+
+            {message && (
+                <p className={`mt-4 text-center text-sm ${message.includes('failed') ? 'text-red-600' : 'text-green-600'}`}>
+                    {message}
+                </p>
+            )}
         </motion.div>
 
       

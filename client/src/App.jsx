@@ -10,8 +10,6 @@ import InterviewPage from './pages/InterviewPage'
 import InterviewHistory from './pages/InterviewHistory'
 import Pricing from './pages/Pricing'
 import InterviewReport from './pages/InterviewReport'
-import { getRedirectResult } from 'firebase/auth'
-import { auth } from './utils/firebase'
 
 const defaultServerUrl = "http://localhost:8000"
 export const ServerUrl = (
@@ -26,25 +24,18 @@ function App() {
   useEffect(() => {
     const init = async () => {
       try {
-        const redirectResult = await getRedirectResult(auth)
-        if (redirectResult) {
-          const fbUser = redirectResult.user
-          const res = await axios.post(
-            ServerUrl + "/api/auth/google",
-            { name: fbUser.displayName, email: fbUser.email },
-            { withCredentials: true }
-          )
-          dispatch(setUserData(res.data))
-          return
-        }
-      } catch (error) {
-        console.log(error)
-      }
-
-      try {
-        const result = await axios.get(ServerUrl + "/api/user/current-user", { withCredentials: true })
+        const token = localStorage.getItem("token")
+        const result = await axios.get(ServerUrl + "/api/user/current-user", {
+          withCredentials: true,
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        })
         dispatch(setUserData(result.data))
       } catch (error) {
+        if (error?.response?.status === 401) {
+          localStorage.removeItem("token")
+          dispatch(setUserData(null))
+          return
+        }
         console.log(error)
         dispatch(setUserData(null))
       }

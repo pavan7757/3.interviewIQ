@@ -4,11 +4,11 @@ import { getAuth,GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_APIKEY || "AIzaSyDPcPhgUqq2DmtKlUqcFe9u6qa7UpTyweo",
-  authDomain: "interview-d8140.firebaseapp.com",
-  projectId: "interview-d8140",
-  storageBucket: "interview-d8140.firebasestorage.app",
-  messagingSenderId: "682310926343",
-  appId: "1:682310926343:web:d97ac2e832d4c76a7b6aa2"
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "interview-d8140.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "interview-d8140",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "interview-d8140.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "682310926343",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:682310926343:web:d97ac2e832d4c76a7b6aa2"
 };
 
 
