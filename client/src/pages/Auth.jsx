@@ -20,6 +20,7 @@ function Auth({isModel = false}) {
     const handleGoogleAuth = async () => {
         setLoading(true)
         setMessage('')
+        setWelcomeName('')
         try {
             const response = await signInWithPopup(auth, provider)
             const firebaseUser = response.user
@@ -32,10 +33,10 @@ function Auth({isModel = false}) {
                 localStorage.setItem("token", authData.token)
             }
             dispatch(setUserData(loggedUser))
-            const displayName = loggedUser?.name || firebaseUser.displayName || 'there'
+            const displayName = loggedUser?.name || firebaseUser.displayName || ''
             setWelcomeName(displayName)
             setTimeout(() => {
-                setMessage(`Welcome ${displayName}!`)
+                setMessage(displayName ? `Welcome ${displayName}!` : 'Welcome!')
             }, 100)
             setTimeout(() => {
                 setMessage('')
@@ -44,6 +45,7 @@ function Auth({isModel = false}) {
         } catch (error) {
             console.log(error)
             dispatch(setUserData(null))
+            setWelcomeName('')
             setMessage('Login failed. Please try again.')
         } finally {
             setLoading(false)
@@ -113,7 +115,9 @@ function Auth({isModel = false}) {
                             {message.includes('failed') ? '!' : '✓'}
                         </div>
                         <div className='text-left'>
-                            <p className='text-sm font-semibold'>Welcome {welcomeName || 'there'}!</p>
+                            <p className='text-sm font-semibold'>
+                                {welcomeName ? `Welcome ${welcomeName}!` : 'Welcome!'}
+                            </p>
                             <p className='mt-1 text-sm'>You’re now signed in to InterviewIQ AI</p>
                         </div>
                     </div>
