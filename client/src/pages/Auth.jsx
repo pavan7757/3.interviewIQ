@@ -15,6 +15,7 @@ function Auth({isModel = false}) {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(false)
     const [message, setMessage] = useState('')
+    const [welcomeName, setWelcomeName] = useState('')
 
     const handleGoogleAuth = async () => {
         setLoading(true)
@@ -31,11 +32,15 @@ function Auth({isModel = false}) {
                 localStorage.setItem("token", authData.token)
             }
             dispatch(setUserData(loggedUser))
-            setMessage('Login successful! Welcome back.')
+            const displayName = loggedUser?.name || firebaseUser.displayName || 'there'
+            setWelcomeName(displayName)
+            setTimeout(() => {
+                setMessage(`Welcome ${displayName}!`)
+            }, 100)
             setTimeout(() => {
                 setMessage('')
                 navigate('/')
-            }, 1200)
+            }, 1600)
         } catch (error) {
             console.log(error)
             dispatch(setUserData(null))
@@ -46,7 +51,7 @@ function Auth({isModel = false}) {
     }
   return (
     <div className={`
-      w-full 
+      w-full relative
       ${isModel ? "py-4" : "min-h-screen bg-[#f3f3f3] flex items-center justify-center px-6 py-20"}
     `}>
         <motion.div 
@@ -96,9 +101,23 @@ function Auth({isModel = false}) {
             </motion.button>
 
             {message && (
-                <p className={`mt-4 text-center text-sm ${message.includes('failed') ? 'text-red-600' : 'text-green-600'}`}>
-                    {message}
-                </p>
+                <motion.div
+                    initial={{ opacity: 0, y: -12, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.25 }}
+                    className={`fixed right-4 top-4 z-50 max-w-sm rounded-2xl border px-4 py-3 shadow-xl ${message.includes('failed') ? 'border-red-200 bg-red-50 text-red-700' : 'border-green-200 bg-green-50 text-green-700'}`}
+                >
+                    <div className='flex items-start gap-2'>
+                        <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${message.includes('failed') ? 'bg-red-200 text-red-700' : 'bg-green-200 text-green-700'}`}>
+                            {message.includes('failed') ? '!' : '✓'}
+                        </div>
+                        <div className='text-left'>
+                            <p className='text-sm font-semibold'>Welcome {welcomeName || 'there'}!</p>
+                            <p className='mt-1 text-sm'>You’re now signed in to InterviewIQ AI</p>
+                        </div>
+                    </div>
+                </motion.div>
             )}
         </motion.div>
 
