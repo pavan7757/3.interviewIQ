@@ -34,6 +34,7 @@ function InterviewReport() {
   }
 
   return <Step3Report report={report}/>
+  
 }
 
 export default InterviewReport

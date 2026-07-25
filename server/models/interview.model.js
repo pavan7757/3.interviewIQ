@@ -43,7 +43,19 @@ const interviewSchema = new mongoose.Schema({
       type: String,
       enum: ["Incompleted", "completed"],
       default: "Incompleted",
-    }
+    },
+
+    violations: [
+      {
+        type: {
+          type: String,   // e.g. "face_not_visible" or "multiple_faces_detected"
+        },
+        timestamp: {
+          type: Date,
+        },
+      },
+    ],
+
 },{timestamps:true})
 
 const Interview = mongoose.model("Interview" , interviewSchema)

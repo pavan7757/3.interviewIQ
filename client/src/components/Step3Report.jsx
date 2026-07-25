@@ -23,6 +23,7 @@ function Step3Report({ report }) {
     communication = 0,
     correctness = 0,
     questionWiseScore = [],
+      violations = [],
   } = report;
 
   const questionScoreData = questionWiseScore.map((score, index) => ({
@@ -261,7 +262,38 @@ function Step3Report({ report }) {
 
                   </div>
                 ))
-              }
+              }{violations.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className='bg-white rounded-2xl sm:rounded-3xl shadow-lg p-6 sm:p-8'>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-4">
+                Proctoring Summary
+              </h3>
+
+              <div className='bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-center'>
+                <p className='text-2xl font-bold text-red-600'>{violations.length}</p>
+                <p className='text-xs text-red-500'>Violation(s) Detected</p>
+              </div>
+
+              <div className='space-y-2 max-h-48 overflow-y-auto'>
+                {violations.map((v, i) => (
+                  <div key={i} className='flex justify-between items-center bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs sm:text-sm'>
+                    <span className='text-gray-700'>
+                      {v.type === "face_not_visible"
+                        ? "Face not visible"
+                        : v.type === "multiple_faces_detected"
+                        ? "Multiple people detected"
+                        : v.type}
+                    </span>
+                    <span className='text-gray-400'>
+                      {v.timestamp ? new Date(v.timestamp).toLocaleTimeString() : ""}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
             </div>
 
           </motion.div>

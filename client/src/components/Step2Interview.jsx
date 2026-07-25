@@ -11,7 +11,7 @@ import axios from "axios"
 import { ServerUrl } from '../App'
 import { BsArrowRight } from 'react-icons/bs'
 
-function Step2Interview({ interviewData, onFinish }) {
+  function Step2Interview({ interviewData, onFinish, violations }) {
   const { interviewId, questions, userName } = interviewData;
   const [isIntroPhase, setIsIntroPhase] = useState(true);
 
@@ -287,11 +287,11 @@ setIsSubmitting(false)
    
   }
 
-  const finishInterview = async () => {
+ const finishInterview = async () => {
     stopMic()
     setIsMicOn(false)
     try {
-      const result = await axios.post(ServerUrl+ "/api/interview/finish" , { interviewId} , {withCredentials:true})
+      const result = await axios.post(ServerUrl+ "/api/interview/finish" , { interviewId, violations} , {withCredentials:true})
 
       console.log(result.data)
       onFinish(result.data)

@@ -332,11 +332,9 @@ Answer: ${answer}
 
   }
 }
-
-
 export const finishInterview = async (req,res) => {
   try {
-    const {interviewId} = req.body
+    const {interviewId, violations} = req.body
     const interview = await Interview.findById(interviewId)
     if(!interview){
       return res.status(400).json({message:"failed to find Interview"})
@@ -374,6 +372,7 @@ export const finishInterview = async (req,res) => {
 
     interview.finalScore = finalScore;
     interview.status = "completed";
+    interview.violations = Array.isArray(violations) ? violations : [];
 
     await interview.save();
 
@@ -382,6 +381,7 @@ export const finishInterview = async (req,res) => {
       confidence: Number(avgConfidence.toFixed(1)),
       communication: Number(avgCommunication.toFixed(1)),
       correctness: Number(avgCorrectness.toFixed(1)),
+      violations: interview.violations,
       questionWiseScore: interview.questions.map((q) => ({
         question: q.question,
         score: q.score || 0,
@@ -395,7 +395,6 @@ export const finishInterview = async (req,res) => {
     return res.status(500).json({message:`failed to finish Interview ${error}`})
   }
 }
-
 
 export const getMyInterviews = async (req,res) => {
   try {
