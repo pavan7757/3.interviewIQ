@@ -14,6 +14,7 @@ function Navbar() {
     const {userData} = useSelector((state)=>state.user)
     const [showCreditPopup,setShowCreditPopup] = useState(false)
     const [showUserPopup,setShowUserPopup] = useState(false)
+    const [showLogoutConfirm,setShowLogoutConfirm] = useState(false)
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [showAuth, setShowAuth] = useState(false);
@@ -21,13 +22,15 @@ function Navbar() {
     const handleLogout = async () => {
         try {
             await axios.get(ServerUrl + "/api/auth/logout" , {withCredentials:true})
+        } catch (error) {
+            console.log(error)
+        } finally {
+            localStorage.removeItem("token")
             dispatch(setUserData(null))
             setShowCreditPopup(false)
             setShowUserPopup(false)
+            setShowLogoutConfirm(false)
             navigate("/")
-
-        } catch (error) {
-            console.log(error)
         }
     }
   return (
@@ -87,7 +90,7 @@ function Navbar() {
                             <p className='text-md text-blue-500 font-medium mb-1'>{userData?.name}</p>
 
                             <button onClick={()=>navigate("/history")} className='w-full text-left text-sm py-2 hover:text-black text-gray-600'>InterView History</button>
-                            <button onClick={handleLogout} 
+                            <button onClick={()=>setShowLogoutConfirm(true)} 
                             className='w-full text-left text-sm py-2 flex items-center gap-2 text-red-500'>
                                 <HiOutlineLogout size={16}/>
                                 Logout</button>
@@ -101,7 +104,40 @@ function Navbar() {
 
         </motion.div>
 
-        {showAuth && <AuthModel onClose={()=>setShowAuth(false)}/>}
+        {showAuth && <AuthModel onClose={()=>setShowAuth(false)}/>} 
+
+        {showLogoutConfirm && (
+            <div className='fixed inset-0 z-[60] flex items-center justify-center bg-black/45 px-4 backdrop-blur-sm'>
+                <motion.div
+                    initial={{opacity:0, scale:0.95, y:10}}
+                    animate={{opacity:1, scale:1, y:0}}
+                    transition={{duration:0.22}}
+                    className='w-full max-w-md rounded-[24px] border border-gray-200 bg-white p-6 shadow-2xl'
+                >
+                    <div className='flex items-center justify-center mb-4 h-12 w-12 rounded-full bg-red-50 text-red-500'>
+                        <HiOutlineLogout size={22} />
+                    </div>
+
+                    <h3 className='text-center text-xl font-semibold text-gray-900'>Are you sure you want to logout?</h3>
+                    <p className='mt-2 text-center text-sm text-gray-600'>This will end your current session and clear your signed-in state.</p>
+
+                    <div className='mt-6 flex justify-center gap-3'>
+                        <button
+                            onClick={()=>setShowLogoutConfirm(false)}
+                            className='rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100'
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className='rounded-full bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800'
+                        >
+                            Yes, logout
+                        </button>
+                    </div>
+                </motion.div>
+            </div>
+        )}
       
     </div>
   )

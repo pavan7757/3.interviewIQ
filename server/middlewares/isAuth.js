@@ -3,7 +3,10 @@ import jwt from "jsonwebtoken"
 
 const isAuth = async (req,res,next) => {
     try {
-        let {token} = req.cookies
+        const cookieToken = req.cookies?.token
+        const authHeader = req.headers.authorization || ""
+        const bearerToken = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null
+        const token = cookieToken || bearerToken
 
         if(!token){
             return res.status(401).json({message:"user does not have a token"})

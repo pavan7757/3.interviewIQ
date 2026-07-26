@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { BsRobot } from "react-icons/bs";
 import { IoSparkles } from "react-icons/io5";
 import { motion } from "motion/react"
@@ -8,26 +8,52 @@ import { auth, provider } from '../utils/firebase';
 import axios from 'axios';
 import { ServerUrl } from '../App';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { setUserData } from '../redux/userSlice';
 function Auth({isModel = false}) {
     const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [loading, setLoading] = useState(false)
+    const [message, setMessage] = useState('')
+    const [welcomeName, setWelcomeName] = useState('')
 
     const handleGoogleAuth = async () => {
+        setLoading(true)
+        setMessage('')
+        setWelcomeName('')
         try {
             const response = await signInWithPopup(auth, provider)
-            const user = response.user
-            const name = user.displayName
-            const email = user.email
+            const firebaseUser = response.user
+            const name = firebaseUser.displayName
+            const email = firebaseUser.email
             const result = await axios.post(ServerUrl + "/api/auth/google" , {name , email} , {withCredentials:true})
-            dispatch(setUserData(result.data))
+            const authData = result.data
+            const loggedUser = authData.user || authData
+            if (authData.token) {
+                localStorage.setItem("token", authData.token)
+            }
+            dispatch(setUserData(loggedUser))
+            const displayName = loggedUser?.name || firebaseUser.displayName || ''
+            setWelcomeName(displayName)
+            setTimeout(() => {
+                setMessage(displayName ? `Welcome ${displayName}!` : 'Welcome!')
+            }, 100)
+            setTimeout(() => {
+                setMessage('')
+                navigate('/')
+            }, 1600)
         } catch (error) {
             console.log(error)
             dispatch(setUserData(null))
+            setWelcomeName('')
+            setMessage('Login failed. Please try again.')
+        } finally {
+            setLoading(false)
         }
     }
   return (
     <div className={`
-      w-full 
+      w-full relative
       ${isModel ? "py-4" : "min-h-screen bg-[#f3f3f3] flex items-center justify-center px-6 py-20"}
     `}>
         <motion.div 
@@ -66,12 +92,37 @@ function Auth({isModel = false}) {
             onClick={handleGoogleAuth}
             whileHover={{opacity:0.9 , scale:1.03}}
             whileTap={{opacity:1 , scale:0.98}}
-            className='w-full flex items-center justify-center gap-3 py-3 bg-black text-white rounded-full shadow-md '>
-                <FcGoogle size={20}/>
-                Continue with Google
-
-   
+            disabled={loading}
+            className='w-full flex items-center justify-center gap-3 py-3 bg-black text-white rounded-full shadow-md disabled:opacity-70'>
+                {loading ? (
+                    <span className='h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin' />
+                ) : (
+                    <FcGoogle size={20}/>
+                )}
+                {loading ? 'Signing in...' : 'Continue with Google'}
             </motion.button>
+
+            {message && (
+                <motion.div
+                    initial={{ opacity: 0, y: -12, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -8, scale: 0.96 }}
+                    transition={{ duration: 0.25 }}
+                    className={`fixed right-4 top-4 z-50 max-w-sm rounded-2xl border px-4 py-3 shadow-xl ${message.includes('failed') ? 'border-red-200 bg-red-50 text-red-700' : 'border-green-200 bg-green-50 text-green-700'}`}
+                >
+                    <div className='flex items-start gap-2'>
+                        <div className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${message.includes('failed') ? 'bg-red-200 text-red-700' : 'bg-green-200 text-green-700'}`}>
+                            {message.includes('failed') ? '!' : '✓'}
+                        </div>
+                        <div className='text-left'>
+                            <p className='text-sm font-semibold'>
+                                {welcomeName ? `Welcome ${welcomeName}!` : 'Welcome!'}
+                            </p>
+                            <p className='mt-1 text-sm'>You’re now signed in to InterviewIQ AI</p>
+                        </div>
+                    </div>
+                </motion.div>
+            )}
         </motion.div>
 
       

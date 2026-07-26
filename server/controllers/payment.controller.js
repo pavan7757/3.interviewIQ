@@ -11,7 +11,7 @@ export const createOrder = async (req,res) => {
     }
 
      const options = {
-      amount: amount * 100, // convert to paise
+      amount: amount * 200, // convert to paise
       currency: "INR",
       receipt: `receipt_${Date.now()}`,
     };
