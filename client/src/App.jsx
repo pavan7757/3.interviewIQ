@@ -11,6 +11,12 @@ import InterviewHistory from './pages/InterviewHistory'
 import Pricing from './pages/Pricing'
 import InterviewReport from './pages/InterviewReport'
 
+axios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token")
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
 const defaultServerUrl = "http://localhost:8000"
 export const ServerUrl = (
   import.meta.env.PROD
