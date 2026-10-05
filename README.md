@@ -4,7 +4,7 @@ AI-powered mock interview platform built with the MERN stack. Upload your resume
 
 ## 🚀 Live Demo
 
-                      https://interviewiqai.netlify.app
+### 👉 **[https://interviewiqai.netlify.app](https://interviewiqai.netlify.app)**
 ## ✨ Features
 
 - 📄 Resume upload (PDF) with AI-based parsing of role, skills, and projects
